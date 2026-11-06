@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Sets the environment variables for psc_pro_checker.py and runs it.
+# Any arguments are passed straight through, e.g.:
+#   ./run_psc.sh --debug
+#   ./run_psc.sh --dry-run
+#
+# Keep this file private because it contains your portal password:
+#   chmod 700 run_psc.sh
+
+set -euo pipefail
+
+# Folder containing this script and psc_pro_checker.py
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"
+
+# --- Portal login -----------------------------------------------------------
+export PSC_USERNAME="email"
+export PSC_PASSWORD="password"
+
+# --- Optional -----------------------------------------------------------------
+# export PSC_USER_FIELD="user[email]"   # only if the login field isn't auto-detected
+export PSC_STATE="$DIR/seen_slots.json" # where "already notified" slots are stored
+
+# --- Pick the Python: use ./venv if present, otherwise system python3 ------------
+if [ -x "$DIR/venv/bin/python" ]; then
+    PYTHON="$DIR/venv/bin/python"
+else
+    PYTHON="$(command -v python3)"
+fi
+
+exec "$PYTHON" "$DIR/psc_pro_checker.py" "$@"
